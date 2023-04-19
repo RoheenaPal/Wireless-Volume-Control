@@ -7,33 +7,37 @@ from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import numpy
 
-devices = AudioUtilities.GetSpeakers()
+devices = AudioUtilities.GetSpeakers() # access speakers of the system
 interface = devices.Activate(
     IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-volume = cast(interface, POINTER(IAudioEndpointVolume))
+volume = cast(interface, POINTER(IAudioEndpointVolume)) # sets all the platforms to the same volume
+
+# volbar = 400 # percentage of volume
+# volper = 0 # initial volume
+# volMin, volMax = volume.GetVolumeRange()[:2] # the min and max volumes can be get through these variables
 
 #volume.GetMasterVolumeLevel()
 #
 
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-mpHands = mp.solutions.hands
-hands = mpHands.Hands()
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # checks for the availability of camera
+mpHands = mp.solutions.hands # detects the finger movement
+hands = mpHands.Hands() # detects the hands and the hands are initialized as hands
 mpDraw = mp.solutions.drawing_utils
 
 while True:
-    success , img =cap.read()
+    success , img =cap.read() # declares the image we are working with, if the camera works, it can initialize it
     if not success:
         break
-    imgRGB = cv2.cvtColor(img , cv2.COLOR_BGR2RGB)
-    results = hands.process(imgRGB)
-    #print(results.multi_hand_landmarks)
+    imgRGB = cv2.cvtColor(img , cv2.COLOR_BGR2RGB) # converts the image into corresponding rgb components
+    results = hands.process(imgRGB) # collects the gestures
+    # print(results.multi_hand_landmarks)
 
-    if results.multi_hand_landmarks:
+    if results.multi_hand_landmarks: # if more than 1 hand is present
         for handLms in results.multi_hand_landmarks:
             lmList = []
             for id ,lm in enumerate(handLms.landmark):
                 #print(id , lm)
-                h ,w , c = img.shape
+                h ,w , c = img.shape # converting the image into an integer
                 cx ,cy = int(lm.x*w) , int(lm.y*h)
                 lmList.append([id ,cx, cy])
 
